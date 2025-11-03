@@ -2,9 +2,9 @@ import * as cheerio from 'cheerio';
 import { SIMGRID_BASE_URL } from './constants';
 
 // TODO : Define proper types for the returned events
-export function parseSearchResults(html: string, debug = false): any[] {
+export function parseChampionshipPage(html: string, debug = false): any[] {
   const $ = cheerio.load(html);
-  const events = [];
+  const championships = [];
 
   const getImageLink = (el: cheerio.Cheerio<any>) => {
     const imgEl = el.find('.loading_image img').first();
@@ -45,7 +45,7 @@ export function parseSearchResults(html: string, debug = false): any[] {
     return footerInformation;
   };
 
-  const buildEvent = (el: cheerio.Cheerio<any>) => {
+  const buildChampionship = (el: cheerio.Cheerio<any>) => {
     const nameAndCommunity = getNameAndCommunity(el);
     const badges = getBadges(el);
     const footer = getFooter(el);
@@ -63,14 +63,14 @@ export function parseSearchResults(html: string, debug = false): any[] {
   if (debug) {
     // Only parse the first event for debugging purposes
     const el = els.first();
-    events.push(buildEvent(el));
-    console.log('Debug Event:', events[0]);
+    championships.push(buildChampionship(el));
+    console.log('Debug Event:', championships[0]);
   } else {
     // Parse all events
     els.each((_, el) => {
-        events.push(buildEvent($(el)));
+        championships.push(buildChampionship($(el)));
     });
   }
 
-  return events;
+  return championships;
 }

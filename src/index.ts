@@ -15,9 +15,8 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { waitUntil } from "cloudflare:workers";
 import { searchChampionships } from "./simgrid";
-import { parseSearchResults } from "./parser";
+import { parseChampionshipPage } from "./parser";
 
 export default {
 	// The fetch handler is used to test the scheduled handler.
@@ -36,8 +35,13 @@ export default {
 		console.log(`trigger fired at ${new Date().toISOString()}`);
 
 		const championshipSearchPage = await searchChampionships();
-		const events = parseSearchResults(championshipSearchPage, false);
+		const championships = parseChampionshipPage(championshipSearchPage, false);
 
-		console.log(`Parsed ${events.length} events from search results.`);
+		const filteredChampionships = championships.filter(c => 
+			c.registration != 'Closed' && c.drivers == 'Teams'
+		);
+
+		console.log(`Parsed ${filteredChampionships.length} events from search results.`);
+		console.debug(filteredChampionships);
 	},
 } satisfies ExportedHandler<Env>;
