@@ -1,7 +1,7 @@
 export async function searchChampionships() {
   let response: Response | null;
   try {
-    response = await fetch("https://www.thesimgrid.com/search?search=Endurance&games[]=1&games[]=65");
+    response = await fetch("https://www.thesimgrid.com/search?search=Endurance&games[]=1&games[]=65&participation[]=team");
   } catch (error) {
     console.error(`Error fetching search results: ${error}`);
     throw error;

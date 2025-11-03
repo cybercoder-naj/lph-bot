@@ -17,7 +17,7 @@
 
 import { searchChampionships, searchRaces } from "./simgrid";
 import { parseChampionshipPage, parseRacePage } from "./parser";
-import { postProcessChampionships } from "./core";
+import { postProcessChampionships } from "./processing";
 
 export default {
 	// The fetch handler is used to test the scheduled handler.
@@ -34,12 +34,10 @@ export default {
 	// [[triggers]] configuration.
 	async scheduled(event, env, ctx): Promise<void> {
 		const debug = false; // Set to true to enable debug logging
-
 		console.log(`trigger fired at ${new Date().toISOString()}`);
 
 		const championshipSearchPage = await searchChampionships();
 		const championships = parseChampionshipPage(championshipSearchPage, debug);
-
 		const processedChampionships = postProcessChampionships(championships);
 
 		console.log(`Parsed ${processedChampionships.length} events from search results.`);
