@@ -11,5 +11,9 @@
 	"devDependencies": {
 		"typescript": "^5.5.2",
 		"wrangler": "^4.45.3"
+	},
+	"dependencies": {
+		"cheerio": "^1.1.2",
+		"discord-interactions": "^4.4.0"
 	}
 }

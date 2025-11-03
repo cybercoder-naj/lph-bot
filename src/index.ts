@@ -15,7 +15,13 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { waitUntil } from "cloudflare:workers";
+import { getChampionships } from "./simgrid";
+
 export default {
+	// The fetch handler is used to test the scheduled handler.
+	// You can ignore it if you don't need to test your scheduled handler
+	// via HTTP requests.
 	async fetch(req) {
 		const url = new URL(req.url);
 		url.pathname = '/__scheduled';
@@ -30,11 +36,10 @@ export default {
 		// publish to a Queue, query a D1 Database, and much more.
 		//
 		// We'll keep it simple and make an API call to a Cloudflare API:
-		let resp = await fetch('https://api.cloudflare.com/client/v4/ips');
-		let wasSuccessful = resp.ok ? 'success' : 'fail';
+		waitUntil(getChampionships(env));
 
 		// You could store this result in KV, write to a D1 Database, or publish to a Queue.
 		// In this template, we'll just log the result:
-		console.log(`trigger fired at ${event.cron}: ${wasSuccessful}`);
+		console.log(`trigger fired at ${event.cron}: ${true}`);
 	},
 } satisfies ExportedHandler<Env>;
