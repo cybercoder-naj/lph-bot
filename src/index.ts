@@ -5,18 +5,19 @@
  * configurable interval:
  * https://developers.cloudflare.com/workers/platform/triggers/cron-triggers/
  *
- * - Run `npm run dev` in your terminal to start a development server
+ * - Run `pnpm run dev` in your terminal to start a development server
  * - Run `curl "http://localhost:8787/__scheduled?cron=*+*+*+*+*"` to see your Worker in action
- * - Run `npm run deploy` to publish your Worker
+ * - Run `pnpm run deploy` to publish your Worker
  *
  * Bind resources to your Worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
+ * `Env` object can be regenerated with `pnpm run cf-typegen`.
  *
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
 import { waitUntil } from "cloudflare:workers";
-import { getChampionships } from "./simgrid";
+import { searchChampionships } from "./simgrid";
+import { parseSearchResults } from "./parser";
 
 export default {
 	// The fetch handler is used to test the scheduled handler.
@@ -32,14 +33,11 @@ export default {
 	// The scheduled handler is invoked at the interval set in our wrangler.jsonc's
 	// [[triggers]] configuration.
 	async scheduled(event, env, ctx): Promise<void> {
-		// A Cron Trigger can make requests to other endpoints on the Internet,
-		// publish to a Queue, query a D1 Database, and much more.
-		//
-		// We'll keep it simple and make an API call to a Cloudflare API:
-		waitUntil(getChampionships(env));
+		console.log(`trigger fired at ${new Date().toISOString()}`);
 
-		// You could store this result in KV, write to a D1 Database, or publish to a Queue.
-		// In this template, we'll just log the result:
-		console.log(`trigger fired at ${event.cron}: ${true}`);
+		const championshipSearchPage = await searchChampionships();
+		const events = parseSearchResults(championshipSearchPage, false);
+
+		console.log(`Parsed ${events.length} events from search results.`);
 	},
 } satisfies ExportedHandler<Env>;
