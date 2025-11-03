@@ -64,7 +64,7 @@ export function parseChampionshipPage(html: string, debug = false): any[] {
     // Only parse the first event for debugging purposes
     const el = els.first();
     championships.push(buildChampionship(el));
-    console.log('Debug Event:', championships[0]);
+    console.log('Debug Championship:', championships[0]);
   } else {
     // Parse all events
     els.each((_, el) => {
@@ -73,4 +73,56 @@ export function parseChampionshipPage(html: string, debug = false): any[] {
   }
 
   return championships;
+}
+
+export function parseRacePage(html: string, debug = false): any[] {
+  const $ = cheerio.load(html);
+  const races = [];
+
+  const getRaceImageLink = (el: cheerio.Cheerio<any>) => {
+    const style = el.find('.card-image').first().attr('style');
+    const match = style?.match(/url\(["']?([^"']+)["']?\)/);
+    return match ? `${SIMGRID_BASE_URL}${match[1]}` : null;
+  }
+
+  const getRaceName = (el: cheerio.Cheerio<any>) => {
+    return el.find('.tab-pane.active.show .card .card-body').text().trim();
+  };
+
+  const getRaceDetails = (el: cheerio.Cheerio<any>) => {
+    const details: Record<string, string> = {};
+    el.find('.tab-pane.active.show .card .card-footer .list-group-item').each((_, detailEl) => {
+      const label = $(detailEl).find('dt span').text().trim().toLowerCase();
+      const valueEl = $(detailEl).find('dd span:not(.badge) time');
+      
+      const value = !valueEl.text().trim() ?
+        $(detailEl).find('dd').text().trim() :
+        valueEl.attr('datetime') || valueEl.text().trim();
+
+      details[label] = value;
+    });
+    return details;
+  };
+
+
+  const buildRace = (el: cheerio.Cheerio<any>) => {
+    return {
+      name: getRaceName(el),
+      imageLink: getRaceImageLink(el),
+      ...getRaceDetails(el),
+    };
+  };
+
+  const els = $('.event-block');
+  if (debug) {
+    const el = els.first();
+    races.push(buildRace(el));
+    console.log('Debug Race:', races[0]);
+  } else {
+    els.each((_, el) => {
+      races.push(buildRace($(el)));
+    });
+  }
+
+  return races;
 }
