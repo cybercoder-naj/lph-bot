@@ -6,6 +6,11 @@ export function parseSearchResults(html: string, debug = false): any[] {
   const $ = cheerio.load(html);
   const events = [];
 
+  const getImageLink = (el: cheerio.Cheerio<any>) => {
+    const imgEl = el.find('.loading_image img').first();
+    return imgEl.attr('src') ? imgEl.attr('src') : null;
+  }
+
   const getNameAndCommunity = (el: cheerio.Cheerio<any>) => {
     const name = el.find('.card-body a[href^="/championships/"]').first();
     const community = el.find('.card-body a[href^="/communities/"]').first();
@@ -15,6 +20,7 @@ export function parseSearchResults(html: string, debug = false): any[] {
       championshipLink: `${SIMGRID_BASE_URL}${name.attr('href')}`,
       community: community.text().trim(),
       communityLink: `${SIMGRID_BASE_URL}${community.attr('href')}`,
+      racesLink: `${SIMGRID_BASE_URL}${name.attr('href')}/races`,
     }
   }
 
@@ -43,11 +49,13 @@ export function parseSearchResults(html: string, debug = false): any[] {
     const nameAndCommunity = getNameAndCommunity(el);
     const badges = getBadges(el);
     const footer = getFooter(el);
+    const imageLink = getImageLink(el);
     
     return {
       ...nameAndCommunity,
       game: badges[1], // <- hacky way to get the game badge
-      ...footer
+      ...footer,
+      imageLink,
     };
   }
 
