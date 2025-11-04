@@ -15,9 +15,8 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { searchChampionships, searchRaces } from "./simgrid";
-import { parseChampionshipPage, parseRacePage } from "./parser";
-import { postProcessChampionships } from "./processing";
+import { upsertChampionshipAndRaces } from "./simgrid";
+import { waitUntil } from "cloudflare:workers";
 
 export default {
 	// The fetch handler is used to test the scheduled handler.
@@ -33,27 +32,6 @@ export default {
 	// The scheduled handler is invoked at the interval set in our wrangler.jsonc's
 	// [[triggers]] configuration.
 	async scheduled(event, env, ctx): Promise<void> {
-		const debug = false; // Set to true to enable debug logging
-		console.log(`trigger fired at ${new Date().toISOString()}`);
-
-		const championshipSearchPage = await searchChampionships();
-		const championships = parseChampionshipPage(championshipSearchPage, debug);
-		const processedChampionships = postProcessChampionships(championships);
-
-		console.log(`Parsed ${processedChampionships.length} events from search results.`);
-
-		for (const championshipId in processedChampionships) {
-			const championship = processedChampionships[championshipId];
-			const races = await searchRaces(championship.racesLink);
-			const parsedRaces = parseRacePage(races, debug);
-
-			console.log(`Parsed ${parsedRaces.length} races for championship: ${championship.name}`);
-
-			processedChampionships[championshipId] = {
-				...championship,
-				races: parsedRaces,
-			}
-		}
-
+		waitUntil(upsertChampionshipAndRaces(env));
 	},
 } satisfies ExportedHandler<Env>;

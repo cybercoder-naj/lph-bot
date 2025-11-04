@@ -10,13 +10,6 @@
 	"observability": {
 		"enabled": true
 	},
-	"env": {
-		"dev": {
-			"vars": {
-				"DEV": true
-			}
-		}
-	},
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -46,5 +39,13 @@
 		"crons": [
 			"0 9 * * *"
 		]
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "lph_db",
+			"database_id": "ba028baa-96aa-4acc-b86c-40428913715c",
+			"remote": true
+		}
+	]
 }

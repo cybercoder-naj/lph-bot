@@ -17,7 +17,8 @@ export async function searchChampionships() {
   return data;
 }
 
-export async function searchRaces(racesLink: string) {
+export async function searchRaces(championshipId: number) {
+  const racesLink = `https://www.thesimgrid.com/championships/${championshipId}/races`;
   let response: Response | null;
   try {
     response = await fetch(racesLink);
