@@ -1,8 +1,10 @@
 import * as cheerio from 'cheerio';
 import { SIMGRID_BASE_URL } from '../constants';
 import type { Championship, Race, SupportedGames } from '../types';
+import { normalize } from './utils';
 
 export function parseChampionshipPage(html: string): Championship[] {
+  console.log("Parsing championship page HTML...");
   const $ = cheerio.load(html);
   const championships: Championship[] = [];
 
@@ -21,8 +23,8 @@ export function parseChampionshipPage(html: string): Championship[] {
     
     return {
       id: +id!,
-      name: name.text().trim(),
-      community: community.text().trim(),
+      name: normalize(name.text()),
+      community: normalize(community.text()),
     }
   }
 
@@ -34,7 +36,7 @@ export function parseChampionshipPage(html: string): Championship[] {
       badges.push(badge);
     });
     if (badges.length < 2) return null;
-    return badges[1] as SupportedGames; // <- hacky way to get the game badge
+    return normalize(badges[1]) as SupportedGames; // <- hacky way to get the game badge
   };
 
   const getFooter = (el: cheerio.Cheerio<any>): Pick<Championship, 'registration' | 'dates' | 'rounds'> => {
@@ -44,7 +46,7 @@ export function parseChampionshipPage(html: string): Championship[] {
       const value = $(footerEl).find('dd').text().trim();
     
       if (label === 'registration' || label === 'dates' || label === 'rounds')
-        footerInformation[label] = value;
+        footerInformation[label] = normalize(value);
     });
     return footerInformation as Pick<Championship, 'registration' | 'dates' | 'rounds'>;
   };
@@ -80,6 +82,7 @@ export function parseChampionshipPage(html: string): Championship[] {
 }
 
 export function parseRacePage(html: string, championshipId: number): Race[] {
+  console.log("Parsing race page HTML for championship ID:", championshipId);
   const $ = cheerio.load(html);
   const races: Race[] = [];
 
@@ -90,7 +93,7 @@ export function parseRacePage(html: string, championshipId: number): Race[] {
   }
 
   const getRaceName = (el: cheerio.Cheerio<any>): Race['name'] => {
-    return el.find('.tab-pane.active.show .card .card-body').text().trim();
+    return normalize(el.find('.tab-pane.active.show .card .card-body').text());
   };
 
   const getRaceDetails = (el: cheerio.Cheerio<any>): Pick<Race, 'date' | 'track'> => {
@@ -104,7 +107,7 @@ export function parseRacePage(html: string, championshipId: number): Race[] {
         valueEl.attr('datetime') || valueEl.text().trim();
 
       if (label === 'date' || label === 'track')
-        details[label] = value;
+        details[label] = normalize(value);
     });
     return details as Pick<Race, 'date' | 'track'>;
   };
@@ -112,6 +115,7 @@ export function parseRacePage(html: string, championshipId: number): Race[] {
 
   const buildRace = (el: cheerio.Cheerio<any>, championshipId: number): Race => {
     return {
+      id: 0,
       name: getRaceName(el),
       imageLink: getRaceImageLink(el),
       ...getRaceDetails(el),

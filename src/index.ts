@@ -15,10 +15,11 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { waitUntil } from "cloudflare:workers";
 import { getAllGuilds, makeClient } from "./discord";
 import { getAllChannels, sendMessage  } from "./discord";
 import { syncChampionshipAndRaces } from "./simgrid";
-import { waitUntil } from "cloudflare:workers";
+import { makeDb } from "./db";
 
 export default {
 	// The fetch handler is used to test the scheduled handler.
@@ -34,9 +35,12 @@ export default {
 	// The scheduled handler is invoked at the interval set in our wrangler.jsonc's
 	// [[triggers]] configuration.
 	async scheduled(event, env, ctx): Promise<void> {
-		const discordClient = makeClient(env.DISCORD_TOKEN);
+		console.log("Scheduled event triggered at", event.scheduledTime); 
 
-		const syncResults = await syncChampionshipAndRaces(env);
+		const discordClient = makeClient(env.DISCORD_TOKEN);
+		const db = makeDb(env.DB);
+
+		const syncResults = await syncChampionshipAndRaces(db);
 
 		const guilds = await getAllGuilds(discordClient);
 		const lphGuild = guilds.find(guild => guild.name.startsWith("Los Patos"));
@@ -50,6 +54,12 @@ export default {
 			throw new Error("Bot channel not found");
 		}
 
-		sendMessage(discordClient, botChannel.id, "Hello LPH! Daily sync completed. Here are the results:\n" + JSON.stringify(syncResults, null, 2));
+		waitUntil(
+			sendMessage(
+				discordClient,
+				botChannel.id,
+				"Hello LPH! Daily sync completed. Here are the results:\n" + JSON.stringify(syncResults, null, 2)
+			)
+		);
 	},
 } satisfies ExportedHandler<Env>;

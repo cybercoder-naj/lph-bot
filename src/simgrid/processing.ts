@@ -1,6 +1,8 @@
 import { Championship } from "../types";
 
 export function postProcessChampionships(championships: Championship[]): Record<string, Championship> {
+  console.log("Post-processing championships...");
+
   const filtered = championships.filter(c =>
     c.registration !== 'Closed'
   );
@@ -9,6 +11,5 @@ export function postProcessChampionships(championships: Championship[]): Record<
     filtered.map(c => [c.id, c])
   );
 
-  console.log(`Post-processed championships, count: ${Object.keys(championshipAsObject).length}`);
   return championshipAsObject;
 }

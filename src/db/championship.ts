@@ -3,7 +3,7 @@ import { Championship } from '../types';
 import { Database } from '.';
 
 export const championship = sqliteTable('championship', {
-  id: integer(),
+  id: integer().unique(),
   name: text(),
   community: text(),
   image: text(),
@@ -13,9 +13,10 @@ export const championship = sqliteTable('championship', {
   rounds: text()
 });
 
-export async function upsertChampionship(db: Database, c: Championship) {
-  await db.insert(championship).values(c).onConflictDoUpdate({
-    target: championship.id,
-    set: c
-  });
+export async function insertChampionship(db: Database, cs: Championship[]) {
+  console.log(`Inserting ${cs.length} championships`);
+  if (cs.length === 0) return;
+
+  // @ts-ignore cs.length > 0
+  await db.batch(cs.map(c => db.insert(championship).values(c)));
 }

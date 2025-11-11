@@ -5,3 +5,6 @@ export function makeDb(db: D1Database) {
 }
 
 export type Database = ReturnType<typeof makeDb>;
+
+export { insertChampionship } from './championship';
+export { syncRaces } from './race';

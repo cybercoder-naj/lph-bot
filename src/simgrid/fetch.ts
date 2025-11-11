@@ -1,4 +1,5 @@
 export async function searchChampionships() {
+  console.log("Fetching championship search results...");
   let response: Response | null;
   try {
     response = await fetch("https://www.thesimgrid.com/search?search=Endurance&games[]=1&games[]=65&participation[]=team");
@@ -18,6 +19,7 @@ export async function searchChampionships() {
 }
 
 export async function searchRaces(championshipId: number) {
+  console.log("Fetching races of championship:", championshipId);
   const racesLink = `https://www.thesimgrid.com/championships/${championshipId}/races`;
   let response: Response | null;
   try {
