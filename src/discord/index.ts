@@ -13,8 +13,6 @@ export function makeClient(token: string) {
   };
 }
 
-export type DiscordClient = ReturnType<typeof makeClient>;
-
 export * from './channel';
 export * from './guild';
 export * from './message';

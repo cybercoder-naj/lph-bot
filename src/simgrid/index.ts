@@ -2,8 +2,8 @@ import { searchChampionships, searchRaces } from './fetch';
 import { parseChampionshipPage, parseRacePage } from './parser';
 import { postProcessChampionships } from './processing';
 import { insertChampionship, syncRaces } from '../db';
-import { SyncResults } from './utils';
-import { Race } from '../types';
+import type { SyncResults } from './utils';
+import type { Race } from '../types';
 
 export async function syncChampionshipAndRaces(db: D1Database): Promise<SyncResults<Race>> {
   console.log('Starting sync of championships and races...');

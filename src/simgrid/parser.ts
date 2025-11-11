@@ -8,27 +8,31 @@ export function parseChampionshipPage(html: string): Championship[] {
   const $ = cheerio.load(html);
   const championships: Championship[] = [];
 
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const getImageLink = (el: cheerio.Cheerio<any>): string => {
     const imgEl = el.find('.loading_image img').first();
     return imgEl.attr('src') ?? '';
   };
 
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const getNameAndCommunity = (el: cheerio.Cheerio<any>): Pick<Championship, 'id' | 'name' | 'community'> | null => {
     const name = el.find('.card-body a[href^="/championships/"]').first();
     const community = el.find('.card-body a[href^="/communities/"]').first();
 
     const nameHref = name.attr('href');
     if (!nameHref) return null;
+
     const id = nameHref.split('/')?.pop();
+    if (!id) return null;
 
     return {
-      id: +id!,
+      id: +id,
       name: normalize(name.text()),
       community: normalize(community.text())
     };
   };
 
-  // any because cheerio types are not very specific
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const getGame = (el: cheerio.Cheerio<any>): SupportedGames | null => {
     const badges: string[] = [];
     el.find('.badge:not(.card-footer .badge)').each((_, badgeEl) => {
@@ -39,6 +43,7 @@ export function parseChampionshipPage(html: string): Championship[] {
     return normalize(badges[1]) as SupportedGames; // <- hacky way to get the game badge
   };
 
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const getFooter = (el: cheerio.Cheerio<any>): Pick<Championship, 'registration' | 'dates' | 'rounds'> => {
     const footerInformation: Record<string, string> = {};
     el.find('.card-footer .list-group-item .meta-wrapper').each((_, footerEl) => {
@@ -51,6 +56,7 @@ export function parseChampionshipPage(html: string): Championship[] {
     return footerInformation as Pick<Championship, 'registration' | 'dates' | 'rounds'>;
   };
 
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const buildChampionship = (el: cheerio.Cheerio<any>): Championship | null => {
     const nameAndCommunity = getNameAndCommunity(el);
     if (!nameAndCommunity) return null;
@@ -83,16 +89,19 @@ export function parseRacePage(html: string, championship: Championship): Race[] 
   const $ = cheerio.load(html);
   const races: Race[] = [];
 
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const getRaceImageLink = (el: cheerio.Cheerio<any>): Race['imageLink'] => {
     const style = el.find('.card-image').first().attr('style');
     const match = style?.match(/url\(["']?([^"']+)["']?\)/);
     return match ? `${SIMGRID_BASE_URL}${match[1]}` : '';
   };
 
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const getRaceName = (el: cheerio.Cheerio<any>): Race['name'] => {
     return normalize(el.find('.tab-pane.active.show .card .card-body').text());
   };
 
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const getRaceDetails = (el: cheerio.Cheerio<any>): Pick<Race, 'date' | 'track'> => {
     const details: Record<string, string> = {};
     el.find('.tab-pane.active.show .card .card-footer .list-group-item').each((_, detailEl) => {
@@ -108,6 +117,7 @@ export function parseRacePage(html: string, championship: Championship): Race[] 
     return details as Pick<Race, 'date' | 'track'>;
   };
 
+  // biome-ignore lint/suspicious/noExplicitAny: cheerio types are not very specific
   const buildRace = (el: cheerio.Cheerio<any>, championship: Championship): Race => {
     return {
       id: 0,

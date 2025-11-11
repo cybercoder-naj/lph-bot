@@ -1,4 +1,4 @@
-import { Championship } from '../types';
+import type { Championship } from '../types';
 
 export function postProcessChampionships(championships: Championship[]): Record<string, Championship> {
   console.log('Post-processing championships...');

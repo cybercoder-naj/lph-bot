@@ -1,4 +1,4 @@
-import { Race } from './race';
+import type { Race } from './race';
 
 export type SupportedGames = 'ACC' | 'LMU';
 
@@ -19,7 +19,6 @@ export type Championship = {
 export async function insertChampionship(db: D1Database, cs: Championship[]) {
   console.log(`Inserting ${cs.length} championships`);
 
-  // @ts-ignore cs.length > 0
   const insertStmt =
     db.prepare(`INSERT INTO championship (id, name, community, image, game, registration, dates, rounds) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)

@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash';
-import { SyncResults } from '../simgrid/utils';
-import { Championship } from './championship';
+import type { SyncResults } from '../simgrid/utils';
+import type { Championship } from './championship';
 
 export type Race = {
   id?: number; // Auto-incremented ID
@@ -29,6 +29,7 @@ export function partitionRaces(races: Race[], racesInDB: Race[]): SyncResults<Ra
         return dbRace && !isEqual(dbRaceData, r);
       })
       .map(r => {
+        // biome-ignore lint/style/noNonNullAssertion: we check existence above
         const dbRace = dbRaceMap.get(r.name)!;
         return { ...r, id: dbRace.id };
       }),

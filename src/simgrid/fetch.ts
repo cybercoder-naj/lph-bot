@@ -1,12 +1,10 @@
-import { SIMGRID_BASE_URL } from "./constants";
+import { SIMGRID_BASE_URL } from './constants';
 
 export async function searchChampionships() {
   console.log('Fetching championship search results...');
   let response: Response | null;
   try {
-    response = await fetch(
-      `${SIMGRID_BASE_URL}/search?search=Endurance&games[]=1&games[]=65&participation[]=team`
-    );
+    response = await fetch(`${SIMGRID_BASE_URL}/search?search=Endurance&games[]=1&games[]=65&participation[]=team`);
   } catch (error) {
     console.error(`Error fetching search results: ${error}`);
     throw error;

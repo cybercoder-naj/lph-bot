@@ -1,5 +1,4 @@
-import { DiscordClient } from '.';
-import { DiscordChannel } from './types';
+import type { DiscordClient, DiscordChannel } from './types';
 
 /**
  * Returns a list of guild channel objects. Does not include threads.

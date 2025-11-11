@@ -1,3 +1,7 @@
+import type { makeClient } from '.';
+
+export type DiscordClient = ReturnType<typeof makeClient>;
+
 export type DiscordChannel = {
   id: string;
   type: number;
@@ -6,7 +10,7 @@ export type DiscordChannel = {
   topic?: string | null;
   nsfw?: boolean;
   last_message_id?: string | null;
-  recipients?: any[];
+  recipients?: DiscordUser[];
 };
 
 export type DiscordUser = {

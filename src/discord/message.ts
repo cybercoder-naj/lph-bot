@@ -1,4 +1,4 @@
-import { DiscordClient } from '.';
+import type { DiscordClient } from './types';
 
 /**
  * Post a message to a guild text or DM channel. Returns a message object. Fires a Message Create Gateway event.

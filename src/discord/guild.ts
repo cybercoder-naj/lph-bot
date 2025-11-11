@@ -1,5 +1,4 @@
-import { DiscordClient } from '.';
-import { DiscordGuild } from './types';
+import type { DiscordClient, DiscordGuild } from './types';
 
 export async function getAllGuilds(client: DiscordClient): Promise<DiscordGuild[]> {
   const response = await client(`/users/@me/guilds`);

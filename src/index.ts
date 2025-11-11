@@ -35,7 +35,7 @@ export default {
 
   // The scheduled handler is invoked at the interval set in our wrangler.jsonc's
   // [[triggers]] configuration.
-  async scheduled(event, env, ctx): Promise<void> {
+  async scheduled(event, env, _ctx): Promise<void> {
     console.log('Scheduled event triggered at', event.scheduledTime);
 
     const discordClient = makeClient(env.DISCORD_TOKEN);
@@ -58,7 +58,7 @@ export default {
       sendMessage(
         discordClient,
         botChannel.id,
-        'Hello LPH! Daily sync completed. Here are the results:\n' + JSON.stringify(syncResults, null, 2)
+        `Hello LPH! Daily sync completed. Here are the results:\n${JSON.stringify(syncResults, null, 2)}`
       )
     );
   }

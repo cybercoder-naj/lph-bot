@@ -1,5 +1,5 @@
 import { partitionRaces } from '../race';
-import { Championship, Race } from '../types'; // Adjust path
+import type { Championship, Race } from '../types'; // Adjust path
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
 const championship: Championship = { id: 1, name: 'Championship 1', community: 'Community A', game: 'ACC' };
