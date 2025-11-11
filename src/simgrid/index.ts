@@ -4,8 +4,10 @@ import { postProcessChampionships } from "./processing";
 import { upsertChampionship } from "../db/championship";
 import { makeDb } from "../db";
 import { syncRaces } from "../db/race";
+import { SyncResults } from "./utils";
+import { Race } from "../types";
 
-export async function upsertChampionshipAndRaces(env: Env) {
+export async function syncChampionshipAndRaces(env: Env): Promise<SyncResults<Race>[]> {
   const db = makeDb(env.DB);
 
   console.log(`trigger fired at ${new Date().toISOString()}`);
@@ -35,10 +37,15 @@ export async function upsertChampionshipAndRaces(env: Env) {
     await upsertChampionship(db, championship);
   }
 
+  const results: SyncResults<Race>[] = [];
+
   for (const championshipId in processedChampionships) {
     const championship = processedChampionships[championshipId];
     if (championship.races) {
       const syncResult = await syncRaces(db, championship.races);
+      results.push(syncResult);
     }
   }
+
+  return results;
 }

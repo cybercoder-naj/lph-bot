@@ -4,6 +4,7 @@ import { Race } from "../types";
 import { Database } from ".";
 import { isEqual } from "lodash";
 import { eq, gt, lt } from "drizzle-orm";
+import { SyncResults } from "../simgrid/utils";
 
 export const race = sqliteTable('race', {
   id: integer().primaryKey({ autoIncrement: true }),
@@ -13,12 +14,6 @@ export const race = sqliteTable('race', {
   imageLink: text(),
   championshipId: integer().notNull().references(() => championship.id),
 });
-
-export interface SyncResults<T> {
-  inserted: T[];
-  updated: T[];
-  archived: T[];
-}
 
 export async function syncRaces(db: Database, races: Race[]): Promise<SyncResults<Race>> {
   const now = new Date().toISOString();
