@@ -1,6 +1,6 @@
-import { isEqual } from "lodash";
-import { SyncResults } from "../simgrid/utils";
-import { Championship } from "./championship";
+import { isEqual } from 'lodash';
+import { SyncResults } from '../simgrid/utils';
+import { Championship } from './championship';
 
 export type Race = {
   id?: number; // Auto-incremented ID
@@ -11,26 +11,28 @@ export type Race = {
 
   // Foreign key reference
   championship: Championship;
-}
+};
 
 // Exported for testing
 export function partitionRaces(races: Race[], racesInDB: Race[]): SyncResults<Race> {
   const now = new Date().toISOString();
   const dbRaceMap = new Map(racesInDB.map(r => [r.name, r]));
 
-  return { 
+  return {
     inserted: races.filter(r => !dbRaceMap.has(r.name) && r.date > now),
-    updated: races.filter(r => {
-      const dbRace = dbRaceMap.get(r.name);
-      if (!dbRace) return false;
+    updated: races
+      .filter(r => {
+        const dbRace = dbRaceMap.get(r.name);
+        if (!dbRace) return false;
 
-      const { id: _, ...dbRaceData } = dbRace;
-      return dbRace && !isEqual(dbRaceData, r);
-    }).map(r => {
-      const dbRace = dbRaceMap.get(r.name)!;
-      return { ...r, id: dbRace.id };
-    }),
-    archived: racesInDB.filter(r => r.date < now) 
+        const { id: _, ...dbRaceData } = dbRace;
+        return dbRace && !isEqual(dbRaceData, r);
+      })
+      .map(r => {
+        const dbRace = dbRaceMap.get(r.name)!;
+        return { ...r, id: dbRace.id };
+      }),
+    archived: racesInDB.filter(r => r.date < now)
   };
 }
 
@@ -41,7 +43,7 @@ export async function syncRaces(db: D1Database, races: Race[]): Promise<SyncResu
 
   const selectRacesResult = await db.prepare(`SELECT * FROM race`).all();
   if (!selectRacesResult.success) {
-    console.error("Error fetching existing races:", selectRacesResult.error);
+    console.error('Error fetching existing races:', selectRacesResult.error);
     return { inserted: [], updated: [], archived: [] };
   }
   const racesInDB = selectRacesResult.results as Race[];
@@ -52,18 +54,12 @@ export async function syncRaces(db: D1Database, races: Race[]): Promise<SyncResu
     const insertRaceStmt = db.prepare(
       `INSERT INTO race (name, date, track, imageLink, championshipId) VALUES (?, ?, ?, ?, ?)`
     );
-    const batchResult = await db.batch(syncResult.inserted.map(r => 
-      insertRaceStmt.bind(
-        r.name,
-        r.date,
-        r.track,
-        r.imageLink,
-        r.championship.id
-      )
-    ));
+    const batchResult = await db.batch(
+      syncResult.inserted.map(r => insertRaceStmt.bind(r.name, r.date, r.track, r.imageLink, r.championship.id))
+    );
     if (batchResult.some(r => !r.success)) {
-      console.error("Error inserting new races");
-      throw new Error("Failed to insert some races");
+      console.error('Error inserting new races');
+      throw new Error('Failed to insert some races');
     }
   }
 
@@ -71,19 +67,12 @@ export async function syncRaces(db: D1Database, races: Race[]): Promise<SyncResu
     const updateRaceStmt = db.prepare(
       `UPDATE race SET name = ?, date = ?, track = ?, imageLink = ?, championshipId = ? WHERE id = ?`
     );
-    const batchResult = await db.batch(syncResult.updated.map(r => 
-      updateRaceStmt.bind(
-        r.name,
-        r.date,
-        r.track,
-        r.imageLink,
-        r.championship.id,
-        r.id
-      )
-    ));
+    const batchResult = await db.batch(
+      syncResult.updated.map(r => updateRaceStmt.bind(r.name, r.date, r.track, r.imageLink, r.championship.id, r.id))
+    );
     if (batchResult.some(r => !r.success)) {
-      console.error("Error updating races");
-      throw new Error("Failed to update some races");
+      console.error('Error updating races');
+      throw new Error('Failed to update some races');
     }
   }
 

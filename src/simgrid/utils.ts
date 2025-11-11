@@ -5,5 +5,5 @@ export interface SyncResults<T> {
 }
 
 export function normalize(str: string) {
-  return str.replace(/\s+|\r?\n/g, " ").trim();
+  return str.replace(/\s+|\r?\n/g, ' ').trim();
 }

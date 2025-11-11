@@ -7,7 +7,7 @@ export type DiscordChannel = {
   nsfw?: boolean;
   last_message_id?: string | null;
   recipients?: any[];
-}
+};
 
 export type DiscordUser = {
   id: string;
@@ -15,7 +15,7 @@ export type DiscordUser = {
   discriminator: string;
   global_name?: string | null;
   avatar?: string | null;
-}
+};
 
 export type DiscordGuild = {
   id: string;
@@ -23,4 +23,4 @@ export type DiscordGuild = {
   icon?: string | null;
   owner?: boolean;
   permissions?: string;
-}
+};

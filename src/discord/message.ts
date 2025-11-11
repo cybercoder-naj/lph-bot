@@ -1,4 +1,4 @@
-import { DiscordClient } from ".";
+import { DiscordClient } from '.';
 
 /**
  * Post a message to a guild text or DM channel. Returns a message object. Fires a Message Create Gateway event.
@@ -9,7 +9,7 @@ import { DiscordClient } from ".";
 export async function sendMessage(client: DiscordClient, channelId: string, message: string): Promise<void> {
   const response = await client(`/channels/${channelId}/messages`, {
     method: 'POST',
-    body: JSON.stringify({ content: message }),
+    body: JSON.stringify({ content: message })
   });
 
   if (!response.ok) {

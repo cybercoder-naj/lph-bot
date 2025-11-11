@@ -15,49 +15,51 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { waitUntil } from "cloudflare:workers";
-import { getAllGuilds, makeClient } from "./discord";
-import { getAllChannels, sendMessage  } from "./discord";
-import { syncChampionshipAndRaces } from "./simgrid";
+import { waitUntil } from 'cloudflare:workers';
+import { getAllGuilds, makeClient } from './discord';
+import { getAllChannels, sendMessage } from './discord';
+import { syncChampionshipAndRaces } from './simgrid';
 
 export default {
-	// The fetch handler is used to test the scheduled handler.
-	// You can ignore it if you don't need to test your scheduled handler
-	// via HTTP requests.
-	async fetch(req) {
-		const url = new URL(req.url);
-		url.pathname = '/__scheduled';
-		url.searchParams.append('cron', '0 9 * * *');
-		return new Response(`To test the scheduled handler, ensure you have used the "--test-scheduled" then try running "curl ${url.href}".`);
-	},
+  // The fetch handler is used to test the scheduled handler.
+  // You can ignore it if you don't need to test your scheduled handler
+  // via HTTP requests.
+  async fetch(req) {
+    const url = new URL(req.url);
+    url.pathname = '/__scheduled';
+    url.searchParams.append('cron', '0 9 * * *');
+    return new Response(
+      `To test the scheduled handler, ensure you have used the "--test-scheduled" then try running "curl ${url.href}".`
+    );
+  },
 
-	// The scheduled handler is invoked at the interval set in our wrangler.jsonc's
-	// [[triggers]] configuration.
-	async scheduled(event, env, ctx): Promise<void> {
-		console.log("Scheduled event triggered at", event.scheduledTime); 
+  // The scheduled handler is invoked at the interval set in our wrangler.jsonc's
+  // [[triggers]] configuration.
+  async scheduled(event, env, ctx): Promise<void> {
+    console.log('Scheduled event triggered at', event.scheduledTime);
 
-		const discordClient = makeClient(env.DISCORD_TOKEN);
+    const discordClient = makeClient(env.DISCORD_TOKEN);
 
-		const syncResults = await syncChampionshipAndRaces(env.DB);
+    const syncResults = await syncChampionshipAndRaces(env.DB);
 
-		const guilds = await getAllGuilds(discordClient);
-		const lphGuild = guilds.find(guild => guild.name.startsWith("Los Patos"));
-		if (!lphGuild) {
-			throw new Error("LPH Guild not found");
-		}
+    const guilds = await getAllGuilds(discordClient);
+    const lphGuild = guilds.find(guild => guild.name.startsWith('Los Patos'));
+    if (!lphGuild) {
+      throw new Error('LPH Guild not found');
+    }
 
-		const channels = await getAllChannels(discordClient, lphGuild.id);
-		const botChannel = channels.find(channel => channel.name?.startsWith("endurance-bot"));
-		if (!botChannel) {
-			throw new Error("Bot channel not found");
-		}
+    const channels = await getAllChannels(discordClient, lphGuild.id);
+    const botChannel = channels.find(channel => channel.name?.startsWith('endurance-bot'));
+    if (!botChannel) {
+      throw new Error('Bot channel not found');
+    }
 
-		waitUntil(
-			sendMessage(
-				discordClient,
-				botChannel.id,
-				"Hello LPH! Daily sync completed. Here are the results:\n" + JSON.stringify(syncResults, null, 2)
-			)
-		);
-	},
+    waitUntil(
+      sendMessage(
+        discordClient,
+        botChannel.id,
+        'Hello LPH! Daily sync completed. Here are the results:\n' + JSON.stringify(syncResults, null, 2)
+      )
+    );
+  }
 } satisfies ExportedHandler<Env>;

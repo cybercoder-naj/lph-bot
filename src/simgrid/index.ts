@@ -1,12 +1,12 @@
-import { searchChampionships, searchRaces } from "./fetch";
-import { parseChampionshipPage, parseRacePage } from "./parser";
-import { postProcessChampionships } from "./processing";
-import { insertChampionship, syncRaces } from "../db";
-import { SyncResults } from "./utils";
-import { Race } from "../types";
+import { searchChampionships, searchRaces } from './fetch';
+import { parseChampionshipPage, parseRacePage } from './parser';
+import { postProcessChampionships } from './processing';
+import { insertChampionship, syncRaces } from '../db';
+import { SyncResults } from './utils';
+import { Race } from '../types';
 
 export async function syncChampionshipAndRaces(db: D1Database): Promise<SyncResults<Race>> {
-  console.log("Starting sync of championships and races...");
+  console.log('Starting sync of championships and races...');
 
   const championshipSearchPage = await searchChampionships();
   const championships = parseChampionshipPage(championshipSearchPage);
@@ -19,8 +19,8 @@ export async function syncChampionshipAndRaces(db: D1Database): Promise<SyncResu
 
     processedChampionships[championshipId] = {
       ...championship,
-      races: parsedRaces,
-    }
+      races: parsedRaces
+    };
   }
 
   await insertChampionship(db, Object.values(processedChampionships));

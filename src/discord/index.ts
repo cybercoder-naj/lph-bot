@@ -7,10 +7,10 @@ export function makeClient(token: string) {
         Authorization: `Bot ${token}`,
         'Content-Type': 'application/json',
         'User-Agent': 'DiscordBot (https://lph-bot.cybercoder-nishant.workers.dev, 0.1.0)',
-        ...(options.headers || {}),
-      },
+        ...(options.headers || {})
+      }
     });
-  }
+  };
 }
 
 export type DiscordClient = ReturnType<typeof makeClient>;

@@ -1,26 +1,27 @@
 {
-	"name": "lph-bot",
-	"version": "0.0.0",
-	"private": true,
-	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev --test-scheduled",
-		"cf-typegen": "wrangler types",
-		"migrate:apply": "wrangler d1 migrations apply lph_db --local",
-		"test": "vitest run",
-		"test:watch": "vitest"
-	},
-	"devDependencies": {
-		"@types/lodash": "^4.17.20",
-		"typescript": "^5.5.2",
-		"vitest": "^4.0.8",
-		"wrangler": "^4.45.3"
-	},
-	"dependencies": {
-		"cheerio": "^1.1.2",
-		"discord.js": "^14.24.2",
-		"lodash": "^4.17.21"
-	},
-	"license": "MIT",
-	"author": "Nishant Aanjaney Jalan <cybercoder.nishant@gmail.com>"
+  "name": "lph-bot",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --test-scheduled",
+    "cf-typegen": "wrangler types",
+    "migrate:apply": "wrangler d1 migrations apply lph_db --local",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.5",
+    "@types/lodash": "^4.17.20",
+    "typescript": "^5.5.2",
+    "vitest": "^4.0.8",
+    "wrangler": "^4.45.3"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.2",
+    "discord.js": "^14.24.2",
+    "lodash": "^4.17.21"
+  },
+  "license": "MIT",
+  "author": "Nishant Aanjaney Jalan <cybercoder.nishant@gmail.com>"
 }
