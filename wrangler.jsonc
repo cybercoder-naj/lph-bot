@@ -44,7 +44,7 @@
 			"binding": "DB",
 			"database_name": "lph_db",
 			"database_id": "ba028baa-96aa-4acc-b86c-40428913715c",
-			"remote": true
+			"remote": false
 		}
 	]
 }

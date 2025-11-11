@@ -38,7 +38,6 @@ export default {
 
 		const syncResults = await syncChampionshipAndRaces(env);
 
-
 		const guilds = await getAllGuilds(discordClient);
 		const lphGuild = guilds.find(guild => guild.name.startsWith("Los Patos"));
 		if (!lphGuild) {
