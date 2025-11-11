@@ -1,51 +1,80 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { championship } from "./championship";
-import { Race } from "../types";
-import { Database } from ".";
 import { isEqual } from "lodash";
-import { eq, gt, lt, sql } from "drizzle-orm";
 import { SyncResults } from "../simgrid/utils";
+import { Championship } from "./championship";
 
-export const race = sqliteTable('race', {
-  id: integer().primaryKey({ autoIncrement: true }).notNull(),
-  name: text().notNull(),
-  date: text().notNull(),
-  track: text().notNull(),
-  imageLink: text(),
-  championshipId: integer().notNull().references(() => championship.id),
-});
+export type Race = {
+  id?: number; // Auto-incremented ID
+  name: string;
+  date: string;
+  track: string;
+  imageLink: string | null;
 
-export async function syncRaces(db: Database, races: Race[]): Promise<SyncResults<Race>> {
+  // Foreign key reference
+  championship: Championship;
+}
+
+export async function syncRaces(db: D1Database, races: Race[]): Promise<SyncResults<Race>> {
   if (races.length === 0) return { inserted: [], updated: [], archived: [] };
 
   console.log(`Syncing ${races.length} races, eg.`, races[0]);
 
   const now = new Date().toISOString();
 
-  const newRaces: Race[] = [];
-  const updatedRaces: Race[] = [];
-  let archivedRaces: Race[] = [];
+  const selectRacesResult = await db.prepare(`SELECT * FROM race`).all();
+  if (!selectRacesResult.success) {
+    console.error("Error fetching existing races:", selectRacesResult.error);
+    return { inserted: [], updated: [], archived: [] };
+  }
+  const racesInDB = selectRacesResult.results as Race[];
 
-  const allRaces = await db.select().from(race);
-  const existingRaces = allRaces.filter(r => r.date >= now);
-  const existingMap = new Map(existingRaces.map(er => [er.id, er]));
-
-  for (const r of races) {
-    if (!r.id) {
-      await db.run(sql`INSERT INTO ${race} (name, date, track, championshipId) VALUES (${r.name}, ${r.date}, ${r.track}, ${r.championshipId})`);
-      newRaces.push(r);
-      continue;
-    }
-
-    const current = existingMap.get(r.id);
-    if (!isEqual(current, r)) {
-      await db.update(race).set(r).where(eq(race.id, r.id));
-      updatedRaces.push(r);
+  const newRaces = races.filter(r => !r.id || !racesInDB.some(er => er.id === r.id));
+  if (newRaces.length > 0) {
+    const insertRaceStmt = db.prepare(
+      `INSERT INTO race (name, date, track, imageLink, championshipId) VALUES (?, ?, ?, ?, ?)`
+    );
+    const batchResult = await db.batch(newRaces.map(r => 
+      insertRaceStmt.bind(
+        r.name,
+        r.date,
+        r.track,
+        r.imageLink,
+        r.championship.id
+      )
+    ));
+    if (batchResult.some(r => !r.success)) {
+      console.error("Error inserting new races");
+      throw new Error("Failed to insert some races");
     }
   }
 
-  const past = allRaces.filter(r => r.date < now);
-  archivedRaces = past;
+  let existingRaces = races.filter(r => racesInDB.some(nr => nr.id === r.id));
+  
+  // check for updates
+  const updatedRaces = existingRaces.filter(r => {
+    const dbRace = racesInDB.find(er => er.id === r.id);
+    return dbRace && !isEqual(dbRace, r);
+  });
+  if (updatedRaces.length > 0) {
+    const updateRaceStmt = db.prepare(
+      `UPDATE race SET name = ?, date = ?, track = ?, imageLink = ?, championshipId = ? WHERE id = ?`
+    );
+    const batchResult = await db.batch(updatedRaces.map(r => 
+      updateRaceStmt.bind(
+        r.name,
+        r.date,
+        r.track,
+        r.imageLink,
+        r.championship.id,
+        r.id
+      )
+    ));
+    if (batchResult.some(r => !r.success)) {
+      console.error("Error updating races");
+      throw new Error("Failed to update some races");
+    }
+  }
+
+  const archivedRaces = racesInDB.filter(r => r.date < now);
 
   return { inserted: newRaces, updated: updatedRaces, archived: archivedRaces };
 }

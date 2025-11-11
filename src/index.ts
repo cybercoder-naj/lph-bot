@@ -19,7 +19,6 @@ import { waitUntil } from "cloudflare:workers";
 import { getAllGuilds, makeClient } from "./discord";
 import { getAllChannels, sendMessage  } from "./discord";
 import { syncChampionshipAndRaces } from "./simgrid";
-import { makeDb } from "./db";
 
 export default {
 	// The fetch handler is used to test the scheduled handler.
@@ -38,9 +37,8 @@ export default {
 		console.log("Scheduled event triggered at", event.scheduledTime); 
 
 		const discordClient = makeClient(env.DISCORD_TOKEN);
-		const db = makeDb(env.DB);
 
-		const syncResults = await syncChampionshipAndRaces(db);
+		const syncResults = await syncChampionshipAndRaces(env.DB);
 
 		const guilds = await getAllGuilds(discordClient);
 		const lphGuild = guilds.find(guild => guild.name.startsWith("Los Patos"));

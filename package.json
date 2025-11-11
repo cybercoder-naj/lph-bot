@@ -6,21 +6,18 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev --test-scheduled",
 		"cf-typegen": "wrangler types",
-		"migrate:gen": "drizzle-kit generate",
 		"migrate:apply": "wrangler d1 migrations apply lph_db --local"
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.17.20",
-		"drizzle-kit": "^0.31.6",
 		"typescript": "^5.5.2",
 		"wrangler": "^4.45.3"
 	},
 	"dependencies": {
 		"cheerio": "^1.1.2",
 		"discord.js": "^14.24.2",
-		"drizzle-orm": "^0.44.7",
 		"lodash": "^4.17.21"
 	},
-  "license": "MIT",
+	"license": "MIT",
 	"author": "Nishant Aanjaney Jalan <cybercoder.nishant@gmail.com>"
 }

@@ -1,22 +1,43 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import { Championship } from '../types';
-import { Database } from '.';
+import { Race } from "./race";
 
-export const championship = sqliteTable('championship', {
-  id: integer().unique(),
-  name: text(),
-  community: text(),
-  image: text(),
-  game: text(),
-  registration: text(),
-  dates: text(),
-  rounds: text()
-});
+export type Championship = {
+  id: number;
+  name: string;
+  community: string;
+  image?: string;
+  game: string;
+  registration?: string;
+  dates?: string;
+  rounds?: string;
 
-export async function insertChampionship(db: Database, cs: Championship[]) {
+  // Navigational Races list
+  races?: Race[] 
+}
+
+export async function insertChampionship(db: D1Database, cs: Championship[]) {
   console.log(`Inserting ${cs.length} championships`);
-  if (cs.length === 0) return;
 
   // @ts-ignore cs.length > 0
-  await db.batch(cs.map(c => db.insert(championship).values(c)));
+  const insertStmt = db
+    .prepare(`INSERT INTO championship (id, name, community, image, game, registration, dates, rounds) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+
+  const batchResult = await db.batch(
+    cs.map(c => insertStmt.bind(
+      c.id,
+      c.name,
+      c.community,
+      c.image,
+      c.game,
+      c.registration,
+      c.dates,
+      c.rounds
+    ))
+  );
+
+  if (batchResult.some(r => !r.success)) {
+    console.error("Error inserting championships:", batchResult);
+    throw new Error("Failed to insert some championships");
+  }
+
+  return batchResult.flatMap(r => r.results);
 }

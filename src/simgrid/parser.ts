@@ -81,8 +81,8 @@ export function parseChampionshipPage(html: string): Championship[] {
   return championships;
 }
 
-export function parseRacePage(html: string, championshipId: number): Race[] {
-  console.log("Parsing race page HTML for championship ID:", championshipId);
+export function parseRacePage(html: string, championship: Championship): Race[] {
+  console.log("Parsing race page HTML for championship ID:", championship.id);
   const $ = cheerio.load(html);
   const races: Race[] = [];
 
@@ -113,19 +113,19 @@ export function parseRacePage(html: string, championshipId: number): Race[] {
   };
 
 
-  const buildRace = (el: cheerio.Cheerio<any>, championshipId: number): Race => {
+  const buildRace = (el: cheerio.Cheerio<any>, championship: Championship): Race => {
     return {
       id: 0,
       name: getRaceName(el),
       imageLink: getRaceImageLink(el),
       ...getRaceDetails(el),
-      championshipId
+      championship
     };
   };
 
   const els = $('.event-block');
   els.each((_, el) => {
-    races.push(buildRace($(el), championshipId));
+    races.push(buildRace($(el), championship));
   });
 
   return races;
