@@ -44,6 +44,9 @@
 			"binding": "DB",
 			"database_name": "lph_db",
 			"database_id": "ba028baa-96aa-4acc-b86c-40428913715c",
+			"preview_database_id": "local_lph_db",
+			"migrations_dir": "./migrations",
+			"migrations_table": "__drizzle_migrations",
 			"remote": false
 		}
 	]

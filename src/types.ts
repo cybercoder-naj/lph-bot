@@ -1,3 +1,3 @@
 export type SupportedGames = 'ACC' | 'LMU';
 
-export * from './db/schema/types';
+export * from './db/types';

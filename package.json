@@ -5,8 +5,9 @@
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev --test-scheduled",
-		"start": "wrangler dev --test-scheduled",
-		"cf-typegen": "wrangler types"
+		"cf-typegen": "wrangler types",
+		"migrate:gen": "drizzle-kit generate",
+		"migrate:apply": "wrangler d1 migrations apply lph_db --local"
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.17.20",
