@@ -11,7 +11,7 @@ CREATE TABLE championship (
 
 CREATE TABLE race (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
     date TEXT NOT NULL,
     track TEXT NOT NULL,
     imageLink TEXT,

@@ -18,9 +18,10 @@ describe("partitionRaces", () => {
 
     const futureDate = new Date(2024, 5, 1).toISOString(); // June 1, 2024
 
+    // There are 2 new races that don't exist in DB
     const races: Race[] = [
       { name: "Race 1", date: futureDate, track: "Track A", imageLink: null, championship },
-      { name: "Race 2", date: futureDate, track: "Track B", imageLink: null, championship },
+      { name: "Race 2", date: futureDate, track: "Track E", imageLink: null, championship },
     ];
     const racesInDB: Race[] = [];
 
@@ -40,11 +41,12 @@ describe("partitionRaces", () => {
 
     const futureDate = new Date(2024, 5, 1).toISOString(); // June 1, 2024
 
+    // There is a race that exists but has different track
     const racesInDB: Race[] = [
       { id: 1, name: "Race 1", date: futureDate, track: "Track A", imageLink: null, championship },
     ];
     const races: Race[] = [
-      { id: 1, name: "Race 1 Updated", date: futureDate, track: "Track A", imageLink: null, championship },
+      { name: "Race 1", date: futureDate, track: "Track B", imageLink: null, championship },
     ];
 
     const { inserted, updated, archived } = partitionRaces(races, racesInDB);
@@ -53,7 +55,7 @@ describe("partitionRaces", () => {
     expect(updated).toHaveLength(1);
     expect(archived).toHaveLength(0);
 
-    expect(updated[0].name).toBe("Race 1 Updated");
+    expect(updated[0].track).toBe("Track B");
   });
 
   it("should classify archived races correctly", () => {
@@ -62,6 +64,7 @@ describe("partitionRaces", () => {
 
     const pastDate = new Date(2023, 5, 1).toISOString(); // June 1, 2023
 
+    // A race in the DB is in the past
     const racesInDB: Race[] = [
       { id: 1, name: "Race 1", date: pastDate, track: "Track A", imageLink: null, championship },
     ];
@@ -76,6 +79,27 @@ describe("partitionRaces", () => {
     expect(archived[0].id).toBe(1);
   });
 
+  it("should not return any races when there are no changes", () => {
+    const now = new Date(2024, 0, 1);
+    vi.setSystemTime(now);
+
+    const futureDate = new Date(2024, 5, 1).toISOString();
+
+    // Same race is present in both lists with identical data
+    const racesInDB: Race[] = [
+      { id: 1, name: "Race 1", date: futureDate, track: "Track A", imageLink: null, championship },
+    ];
+    const races: Race[] = [
+      { name: "Race 1", date: futureDate, track: "Track A", imageLink: null, championship },
+    ];
+
+    const { inserted, updated, archived } = partitionRaces(races, racesInDB);
+
+    expect(inserted).toHaveLength(0);
+    expect(updated).toHaveLength(0);
+    expect(archived).toHaveLength(0);
+  });
+
   it("should handle mixed cases", () => {
     const now = new Date(2024, 0, 1); // Jan 1, 2024
     vi.setSystemTime(now);
@@ -83,13 +107,19 @@ describe("partitionRaces", () => {
     const pastDate = new Date(2023, 5, 1).toISOString();
     const futureDate = new Date(2024, 5, 1).toISOString();
 
+    // Race 1 is archived
+    // Race 2 is updated
+    // Race 3 is new
+    // Race 4 is unchanged
     const racesInDB: Race[] = [
       { id: 1, name: "Race 1", date: pastDate, track: "Track A", imageLink: null, championship },
       { id: 2, name: "Race 2", date: futureDate, track: "Track B", imageLink: null, championship },
+      { id: 4, name: "Race 4", date: futureDate, track: "Track D", imageLink: null, championship },
     ];
     const races: Race[] = [
       { name: "Race 3", date: futureDate, track: "Track C", imageLink: null, championship },
-      { id: 2, name: "Race 2 Updated", date: futureDate, track: "Track B", imageLink: null, championship },
+      { name: "Race 2", date: futureDate, track: "Track E", imageLink: null, championship },
+      { name: "Race 4", date: futureDate, track: "Track D", imageLink: null, championship },
     ];
 
     const { inserted, updated, archived } = partitionRaces(races, racesInDB);

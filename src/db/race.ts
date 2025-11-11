@@ -16,11 +16,20 @@ export type Race = {
 // Exported for testing
 export function partitionRaces(races: Race[], racesInDB: Race[]): SyncResults<Race> {
   const now = new Date().toISOString();
-  const dbRaceMap = new Map(racesInDB.map(r => [r.id, r]));
+  const dbRaceMap = new Map(racesInDB.map(r => [r.name, r]));
 
   return { 
-    inserted: races.filter(r => !dbRaceMap.has(r.id) && r.date > now),
-    updated: races.filter(r => dbRaceMap.has(r.id) && !isEqual(dbRaceMap.get(r.id), r)),
+    inserted: races.filter(r => !dbRaceMap.has(r.name) && r.date > now),
+    updated: races.filter(r => {
+      const dbRace = dbRaceMap.get(r.name);
+      if (!dbRace) return false;
+
+      const { id: _, ...dbRaceData } = dbRace;
+      return dbRace && !isEqual(dbRaceData, r);
+    }).map(r => {
+      const dbRace = dbRaceMap.get(r.name)!;
+      return { ...r, id: dbRace.id };
+    }),
     archived: racesInDB.filter(r => r.date < now) 
   };
 }
