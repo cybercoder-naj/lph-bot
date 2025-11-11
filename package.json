@@ -6,11 +6,14 @@
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev --test-scheduled",
 		"cf-typegen": "wrangler types",
-		"migrate:apply": "wrangler d1 migrations apply lph_db --local"
+		"migrate:apply": "wrangler d1 migrations apply lph_db --local",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.17.20",
 		"typescript": "^5.5.2",
+		"vitest": "^4.0.8",
 		"wrangler": "^4.45.3"
 	},
 	"dependencies": {

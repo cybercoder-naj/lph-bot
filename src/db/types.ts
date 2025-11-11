@@ -1,2 +1,2 @@
 export type { Race } from './race';
-export type { Championship } from './championship';
+export type { Championship, SupportedGames } from './championship';

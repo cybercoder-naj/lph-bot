@@ -1,11 +1,13 @@
 import { Race } from "./race";
 
+export type SupportedGames = 'ACC' | 'LMU';
+
 export type Championship = {
   id: number;
   name: string;
   community: string;
   image?: string;
-  game: string;
+  game: SupportedGames;
   registration?: string;
   dates?: string;
   rounds?: string;
@@ -19,7 +21,17 @@ export async function insertChampionship(db: D1Database, cs: Championship[]) {
 
   // @ts-ignore cs.length > 0
   const insertStmt = db
-    .prepare(`INSERT INTO championship (id, name, community, image, game, registration, dates, rounds) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+    .prepare(`INSERT INTO championship (id, name, community, image, game, registration, dates, rounds) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        name=excluded.name,
+        community=excluded.community,
+        image=excluded.image,
+        game=excluded.game,
+        registration=excluded.registration,
+        dates=excluded.dates,
+        rounds=excluded.rounds
+    `);
 
   const batchResult = await db.batch(
     cs.map(c => insertStmt.bind(
