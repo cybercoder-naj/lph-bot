@@ -16,8 +16,7 @@
  */
 
 import { waitUntil } from 'cloudflare:workers';
-import { getAllGuilds, makeClient } from './discord';
-import { getAllChannels, sendMessage } from './discord';
+import { getAllChannels, getAllGuilds, makeClient, sendMessage } from './discord';
 import { syncChampionshipAndRaces } from './simgrid';
 
 export default {
@@ -49,17 +48,17 @@ export default {
     }
 
     const channels = await getAllChannels(discordClient, lphGuild.id);
-    const botChannel = channels.find(channel => channel.name?.startsWith('endurance-bot'));
+    const botChannel = channels.find(channel => channel.name === 'endurance-bot');
     if (!botChannel) {
       throw new Error('Bot channel not found');
     }
 
-    waitUntil(
-      sendMessage(
-        discordClient,
-        botChannel.id,
-        `Hello LPH! Daily sync completed. Here are the results:\n${JSON.stringify(syncResults, null, 2)}`
-      )
-    );
+    console.log('Sync results:', syncResults);
+
+    waitUntil(sendMessage(discordClient, botChannel.id, `Hello LPH! Daily sync completed. Here are new races:`));
+
+    for (const race of syncResults.inserted) {
+      waitUntil(sendMessage(discordClient, botChannel.id, `- New race found: ${race.name}`));
+    }
   }
 } satisfies ExportedHandler<Env>;
