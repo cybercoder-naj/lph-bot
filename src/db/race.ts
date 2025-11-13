@@ -53,7 +53,13 @@ export async function syncRaces(db: D1Database, races: Race[]): Promise<SyncResu
 
   if (syncResult.inserted.length > 0) {
     const insertRaceStmt = db.prepare(
-      `INSERT INTO race (name, date, track, imageLink, championshipId) VALUES (?, ?, ?, ?, ?)`
+      `INSERT INTO race (name, date, track, imageLink, championshipId) 
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(name) DO UPDATE SET
+        date=excluded.date,
+        track=excluded.track,
+        imageLink=excluded.imageLink,
+        championshipId=excluded.championshipId`
     );
     const batchResult = await db.batch(
       syncResult.inserted.map(r => insertRaceStmt.bind(r.name, r.date, r.track, r.imageLink, r.championship.id))
